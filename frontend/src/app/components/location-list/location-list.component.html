@@ -1,0 +1,16 @@
+<!-- location-list.component.html -->
+<h2>Location Management</h2>
+
+<!-- Add Location Inline -->
+<input type="text" [(ngModel)]="newLocation.name" placeholder="Location Name">
+<button (click)="addLocation()">Add Location</button>
+
+<!-- Existing locations -->
+<ul>
+  <li *ngFor="let loc of locations">
+    {{ loc.id }} -
+    <input [(ngModel)]="loc.name">
+    <button (click)="updateLocation(loc)">Update</button>
+    <button (click)="deleteLocation(loc.id)">Delete</button>
+  </li>
+</ul>

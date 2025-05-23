@@ -1,0 +1,86 @@
+pipeline {
+    agent any
+    environment {
+        AWS_REGION = 'us-east-1'
+        
+        BASE_AMI = 'ami-08b5b3a93ed654d19'  // Amazon Linux 2 Base AMI
+        ANSIBLE_PLAYBOOK = 'infra/ansible/playbook.yaml'  // 
+        AMI_NAME = "Clean-Docker-AMI${BUILD_NUMBER}"
+        PEM_PATH = "infra/ansible/ansible.pem"
+        ELASTIC_IP = "23.21.143.245"
+    }
+
+    stages {  
+
+        stage('Create EC2 Instance') {
+            steps {
+                sh '''
+                # Create the EC2 instance with the correct Security Group and Key Pair
+                INSTANCE_ID=$(aws ec2 run-instances \
+                  --image-id $BASE_AMI \
+                  --instance-type t2.small \
+                  --key-name ansible \
+                  --security-group-ids sg-004739a465ea7948f \
+                  --subnet-id subnet-057bee5e8bcc84b24 \
+                  --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=Clean-Docker-Instance-evren}]' \
+                  --query 'Instances[0].InstanceId' \
+                  --output text)
+
+                echo $INSTANCE_ID > instance_id.txt
+                aws ec2 wait instance-status-ok --instance-ids $INSTANCE_ID
+
+                # Associate the Elastic IP with the new instance
+                aws ec2 associate-address \
+                  --instance-id $INSTANCE_ID \
+                  --allocation-id eipalloc-03ffac9d92d38472b
+
+                echo "Elastic IP successfully assigned to instance: $INSTANCE_ID"
+                '''
+            }
+        }
+
+        stage('Install Docker via Ansible') {
+            steps {
+                sh '''
+                chmod 400 infra/ansible/ansible.pem
+                ssh-keygen -R $ELASTIC_IP || true
+                ssh-keyscan -H $ELASTIC_IP >> ~/.ssh/known_hosts
+                /usr/bin/ansible-playbook -i infra/ansible/hosts.ini \
+                infra/ansible/playbook.yaml
+                '''
+            }
+        }
+
+        stage('Create AMI') {
+            steps {
+                sh '''
+                INSTANCE_ID=$(cat instance_id.txt)
+                aws ec2 create-image \
+                  --instance-id $INSTANCE_ID \
+                  --name "$AMI_NAME" \
+                  --no-reboot
+                '''
+            }
+        }
+    }
+
+    post {
+        always {
+            sh '''
+            # Terminate the instance
+            if [ -f instance_id.txt ]; then
+                aws ec2 terminate-instances --instance-ids $(cat instance_id.txt) || true
+                echo "EC2 instance terminated successfully."
+            fi
+
+            # Cleanup SSH Known Hosts (ensures fresh connection keys)
+            ssh-keygen -R $ELASTIC_IP || true
+            ssh-keyscan -H $ELASTIC_IP >> ~/.ssh/known_hosts
+            
+            '''
+        }
+        cleanup {
+            cleanWs()
+        }
+    }
+}

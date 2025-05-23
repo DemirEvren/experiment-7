@@ -1,0 +1,40 @@
+version: '3.8'
+
+networks:
+  test-network:  # Define a custom network
+
+services:
+  mysql:
+    image: mysql:latest
+    container_name: test-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: TestTodoDB
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - test-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile  # This will use the normal Dockerfile
+    container_name: backend
+    ports:
+      - "3000:3000"
+    environment:
+      - DBURL=test-mysql
+      - DBUSER=root
+      - DBPASSWORD=password
+      - DBDATABASE=TestTodoDB
+      - DBPORT=3306
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - test-network

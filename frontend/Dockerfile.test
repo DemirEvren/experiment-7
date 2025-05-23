@@ -1,0 +1,32 @@
+# Use a Node.js base image
+FROM node:18-alpine
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the entire Angular project
+COPY . .
+
+# Install project dependencies
+RUN npm install
+
+# Install Chrome dependencies
+RUN apk update && apk add --no-cache \
+    chromium \
+    nss \
+    freetype \
+    freetype-dev \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont
+
+# Set CHROME_BIN environment variable
+ENV CHROME_BIN=/usr/bin/chromium-browser
+
+# Install Angular CLI globally (optional)
+RUN npm install -g @angular/cli
+RUN npm install --save-dev karma-phantomjs-launcher
+RUN npm install --save intl
+
+# CMD to run tests
+CMD ["ng", "test", "--browsers=ChromeHeadlessNoSandbox", "--watch=false"]

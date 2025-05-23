@@ -1,0 +1,62 @@
+pipeline {
+    agent any
+    
+    environment {
+        DOCKER_IMAGE_NAME = 'tommyquatretempspxl/todoappfrontend'
+        DOCKER_IMAGE_VERSION = "${env.BUILD_NUMBER}"
+    }
+
+    stages {
+        stage('Fetch code') {
+            steps {
+                git branch: 'main', 
+                    url: 'git@github.com:ResearchProject-SNB-PXLDigital/rp2425-snb03.git', 
+                    credentialsId: 'Github'
+            }
+        }
+        stage('Testing') {
+            steps {
+                sh """
+                    cd frontend &&
+                    docker build -t my-angular-test -f Dockerfile.test . &&
+                    docker run --rm -v \$(pwd)/test-results:/app/test-results my-angular-test 
+                """
+                junit 'frontend/test-results/junit.xml'
+            }
+        }
+        stage('Image building/tagging') {
+            steps {
+                sh """
+                    cd frontend &&
+                    docker build --no-cache --build-arg APIURL=https://f94cmxffe6.execute-api.us-east-1.amazonaws.com/snb3-research-project -t ${DOCKER_IMAGE_NAME}:nvrg -f Dockerfile . &&
+                    docker tag ${DOCKER_IMAGE_NAME}:nvrg ${DOCKER_IMAGE_NAME}:latest &&
+                    docker tag ${DOCKER_IMAGE_NAME}:nvrg ${DOCKER_IMAGE_NAME}:1.0.${DOCKER_IMAGE_VERSION} &&
+                    docker build --no-cache --build-arg APIURL=https://16fmc4zgr5.execute-api.us-east-2.amazonaws.com/SNB3-ohio-api -t ${DOCKER_IMAGE_NAME}:ohio -f Dockerfile . &&
+                    docker tag ${DOCKER_IMAGE_NAME}:ohio ${DOCKER_IMAGE_NAME}:latest &&
+                    docker tag ${DOCKER_IMAGE_NAME}:ohio ${DOCKER_IMAGE_NAME}:1.0.${DOCKER_IMAGE_VERSION}
+                """
+                sh "docker images"
+            }
+        }
+    }
+
+    post {
+        success{
+            withCredentials([usernamePassword(credentialsId: 'Dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh """
+                        docker login -u "$DOCKER_USER" -p "$DOCKER_PASS" &&
+                        docker push ${DOCKER_IMAGE_NAME}:1.0.${DOCKER_IMAGE_VERSION} &&
+                        docker push ${DOCKER_IMAGE_NAME}:nvrg &&
+                        docker push ${DOCKER_IMAGE_NAME}:ohio
+                    """
+            }
+        }
+        cleanup {
+            cleanWs()
+            sh 'docker ps -aq | xargs -r docker rm -f'
+            sh 'docker image prune -af'
+            sh 'docker images'
+            sh 'docker ps -a'
+        }
+    }
+}

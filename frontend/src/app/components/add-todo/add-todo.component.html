@@ -1,0 +1,13 @@
+<form [formGroup]="myForm" (ngSubmit)="add()">
+  <input type="text" formControlName="title" placeholder="Enter todo title">
+  <input type="text" formControlName="label" placeholder="Enter todo label">
+
+  <select formControlName="locationId">
+    <option value="">No location selected</option> <!-- Default empty option -->
+    <option *ngFor="let location of locations" [value]="location.id">
+      {{ location.name }}
+    </option>
+  </select>
+
+  <button type="submit">Add new items</button>
+</form>

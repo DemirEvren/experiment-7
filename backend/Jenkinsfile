@@ -1,0 +1,69 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_IMAGE_NAME = 'tommyquatretempspxl/todoappbackend'
+        DOCKER_IMAGE_VERSION = "${env.BUILD_NUMBER}"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', 
+                    url: 'git@github.com:ResearchProject-SNB-PXLDigital/rp2425-snb03.git', 
+                    credentialsId: 'Github'
+            }
+        }
+        stage('Testing') {
+            steps {
+                sh """
+                    cd backend &&
+                    docker-compose -f compose.test.yml up -d --build 
+                """
+                sh 'sleep 10'
+                sh """
+                    cd backend &&
+                    docker build -f Dockerfile.test -t testcontainer . &&
+                    docker run -d --network backend_test-network -v ./test-results:/usr/src/app/test-results testcontainer
+                """
+                sh 'sleep 10'
+                sh """
+                    cd backend &&
+                    docker-compose -f compose.test.yml down
+                """
+                junit 'backend/test-results/junit.xml' 
+            }
+        }
+
+        stage('Build Images') {
+            steps {
+                sh """
+                    cd backend &&
+                    docker build -t ${DOCKER_IMAGE_NAME}:1.0.${DOCKER_IMAGE_VERSION} -f Dockerfile . &&
+                    docker tag ${DOCKER_IMAGE_NAME}:1.0.${DOCKER_IMAGE_VERSION} ${DOCKER_IMAGE_NAME}:latest
+                """
+                sh "docker images"
+            }
+        }
+    }
+
+    post {
+        success{
+            withCredentials([usernamePassword(credentialsId: 'Dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh """
+                        docker login -u "$DOCKER_USER" -p "$DOCKER_PASS" &&
+                        docker push ${DOCKER_IMAGE_NAME}:1.0.${DOCKER_IMAGE_VERSION} &&
+                        docker push ${DOCKER_IMAGE_NAME}:latest
+                    """
+            }
+        }
+        cleanup {
+            cleanWs()
+            sh 'docker ps -aq | xargs -r docker rm -f'
+            sh 'docker image prune -af'
+            sh 'docker images'
+            sh 'docker ps -a'
+        }
+    }
+
+}
