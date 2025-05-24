@@ -1,4 +1,5 @@
 import { Component, OnInit, Renderer2} from '@angular/core';
+import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -13,7 +14,8 @@ export class AppComponent {
 
    //constructor genereated by ai, testing remove when done
   //no need to remove it because it fixed our issue
-  constructor(private renderer: Renderer2) {  // Inject Renderer2
+  constructor(private renderer: Renderer2, public router: Router // ✅ inject Router here
+) {  // Inject Renderer2
     console.log(this.url);
   }
 
@@ -43,5 +45,8 @@ export class AppComponent {
     link.href = url;
     this.renderer.appendChild(document.head, link);
   }
-
+  // ✅ Add this helper function to control carousel visibility
+    showCarousel(): boolean {
+    return this.router.url === '/home' || this.router.url === '' || this.router.url === '/add';
+    }
 }

@@ -15,3 +15,6 @@ FROM nginx
 
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY --from=build /usr/src/app/dist/frontend/ /usr/share/nginx/html
+
+# added extra: for the source map this can be deleted for production after my experiment
+# RUN find /usr/share/nginx/html -name "*.map" -delete

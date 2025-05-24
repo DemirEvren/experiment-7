@@ -18,6 +18,7 @@ datadogRum.init({
     trackResources: true,
     trackLongTasks: true,
     trackUserInteractions: true,
+    version: '1.0.0',
 
 });
 datadogRum.startSessionReplayRecording();

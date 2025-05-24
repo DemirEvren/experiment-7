@@ -9,7 +9,7 @@ import { AddTodoComponent } from './components/add-todo/add-todo.component';
 import { TodoListComponent } from './components/todo-list/todo-list.component';
 import { TodoItemComponent } from './components/todo-item/todo-item.component';
 import { CarrouselComponent } from './components/carrousel/carrousel.component';
-import { LocationsComponent } from './components/locations/locations.component';
+// import { LocationsComponent } from './components/locationsbackup/locations.component';
 import { LocationListComponent } from './components/location-list/location-list.component';
 
 @NgModule({
@@ -19,7 +19,7 @@ import { LocationListComponent } from './components/location-list/location-list.
     TodoListComponent,
     TodoItemComponent,
     CarrouselComponent,
-    LocationsComponent,
+    // LocationsComponent,
     LocationListComponent,
   ],
   imports: [

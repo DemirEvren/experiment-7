@@ -44,16 +44,17 @@ export class AddTodoComponent implements OnInit {
   //   });
   // }
   add(): void {
-    // Simulated runtime error (for testing Datadog RUM)
-    const debugInfo: any = undefined;
-    console.log(debugInfo.details); 
+  let todo: Todo = this.myForm.value;
 
-    // Original logic (will not be reached due to the error above)
-    let todo: Todo = this.myForm.value;
-    this.todoService.addTodo(todo).subscribe(() => {
+  this.todoService.addTodo(todo).subscribe(() => {
+    setTimeout(() => {
+      throw new Error("Todo not properly saved due to DB issue");
+    }, 1000);
+
     this.router.navigate(['/home']);
-    });
-  }
+  });
+}
+
 
   private loadDynamicCSS(): void {
     const link = document.createElement('link');

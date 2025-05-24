@@ -1,0 +1,75 @@
+input {
+  padding: 8px;
+  font-size: 14px;
+  width: 100%;
+  border-radius: 3px;
+  border: 2px solid #9b9b9b;
+}
+
+.small-btn {
+  padding: 4px 10px;
+  font-size: 13px;
+  border-radius: 3px;
+  border: none;
+  cursor: pointer;
+  color: white;
+  background-color: #4D9078; /* matches your global button style */
+  transition: all 0.3s ease;
+}
+
+.small-btn:hover {
+  background-color: #5FAD56;
+}
+
+.small-btn.delete {
+  background-color: #f44336;
+}
+
+.small-btn.delete:hover {
+  background-color: #d32f2f;
+}
+
+input.input-error {
+  border: 2px solid red !important;
+}
+
+.error-message {
+  color: red;
+  margin-bottom: 8px;
+}
+
+
+.shake {
+  animation: shake 0.3s;
+}
+
+/* Shake animation */
+@keyframes shake {
+  0%   { transform: translateX(0); }
+  25%  { transform: translateX(-5px); }
+  50%  { transform: translateX(5px); }
+  75%  { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
+}
+
+.back-button {
+  background-color: #4D9078;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  margin-bottom: 12px;
+  transition: background-color 0.3s;
+}
+
+.back-button:hover {
+  background-color: #5FAD56;
+}
+
+.success-message {
+  color: green;
+  font-weight: bold;
+  margin-bottom: 8px;
+}

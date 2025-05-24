@@ -5,7 +5,7 @@
   <header>Todo App</header>
   <router-outlet></router-outlet>
 </div>
-<div class="wrapper">
+<div class="wrapper" *ngIf="showCarousel()">
   <header>Pictures of the day</header>
   <app-carrousel></app-carrousel>
 </div>

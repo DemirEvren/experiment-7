@@ -16,3 +16,18 @@ button{
 button:hover{
   background: #5FAD56;
 }
+
+.button-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.yellow-btn {
+  background-color: #f0ad4e; /* bootstrap-like warning color */
+  opacity: 1;
+}
+
+.yellow-btn:hover {
+  background-color: #ec971f;
+}

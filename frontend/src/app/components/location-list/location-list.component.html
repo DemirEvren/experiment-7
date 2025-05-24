@@ -1,16 +1,29 @@
-<!-- location-list.component.html -->
+<button routerLink="/home" class="back-button">← Back to Home</button>
+
 <h2>Location Management</h2>
 
-<!-- Add Location Inline -->
-<input type="text" [(ngModel)]="newLocation.name" placeholder="Location Name">
+<p *ngIf="successMessage" class="success-message">{{ successMessage }}</p>
+<p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
+
+<input
+  type="text"
+  [(ngModel)]="newLocation.name"
+  placeholder="Location Name"
+  [class.input-error]="!!errorMessage"
+/>
+
 <button (click)="addLocation()">Add Location</button>
 
 <!-- Existing locations -->
 <ul>
   <li *ngFor="let loc of locations">
-    {{ loc.id }} -
-    <input [(ngModel)]="loc.name">
-    <button (click)="updateLocation(loc)">Update</button>
-    <button (click)="deleteLocation(loc.id)">Delete</button>
+    <div> ID: <strong>{{ loc.id }}</strong></div>
+    <div style="display: flex; align-items: start; gap: 8px;">
+      <input [(ngModel)]="loc.name" style="flex: 1;">
+      <div style="display: flex; flex-direction: column; gap: 4px;">
+        <button (click)="updateLocation(loc)" class="small-btn">Update</button>
+        <button (click)="deleteLocation(loc.id)" class="small-btn delete">Delete</button>
+      </div>
+    </div>
   </li>
 </ul>
