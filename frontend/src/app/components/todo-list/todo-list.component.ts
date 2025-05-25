@@ -23,6 +23,7 @@ export class TodoListComponent implements OnInit {
     // ✅ Always load both on init
     this.getTodosAndLocations();
     this.loadDynamicCSS();
+
   }
 
   getTodosAndLocations(): void {
@@ -33,15 +34,21 @@ export class TodoListComponent implements OnInit {
       this.locations = locations;
 
       this.todos = todos.map(todo => {
-        const locationId = (todo as any).location_id || todo.locationId || '';
-        const locationName = this.locations.find(loc => loc.id === locationId)?.name || '';
+          const locationId = (todo as any).location_id || todo.locationId || '';
+          const location = this.locations.find(loc => loc.id === locationId);
 
-        return {
-          ...todo,
-          locationId,
-          locationName
-        };
-      });
+          const locationName = location
+            ? location.name
+            : locationId
+              ? `⚠️ Unknown location (ID: ${locationId})`
+              : '';
+
+          return {
+            ...todo,
+            locationId,
+            locationName
+          };
+        });
     });
   }
 

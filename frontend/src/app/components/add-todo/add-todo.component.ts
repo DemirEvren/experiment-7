@@ -22,20 +22,19 @@ export class AddTodoComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.myForm = new FormGroup({
-      title: new FormControl(''),
-      label: new FormControl(''),
-      locationId: new FormControl('')
-    });
+  this.myForm = new FormGroup({
+    title: new FormControl(''),
+    label: new FormControl(''),
+    locationId: new FormControl('')
+  });
 
-    // Dynamically load the CSS from Amazon S3
-    this.loadDynamicCSS();
+  this.loadDynamicCSS();
 
-    // Fetch locations from backend
-    this.locationsService.getLocations().subscribe((data) => {
-      this.locations = data;
-    });
-  }
+  this.locationsService.getLocations().subscribe((data) => {
+    this.locations = data;
+  });
+}
+
 
   // add(): void {
   //   let todo: Todo = this.myForm.value;
@@ -47,13 +46,18 @@ export class AddTodoComponent implements OnInit {
   let todo: Todo = this.myForm.value;
 
   this.todoService.addTodo(todo).subscribe(() => {
+    // 🚨 Trigger async unhandled rejection
+    Promise.reject("DatadogSim: unhandled promise rejection");
+
+    // 🚨 Async error after success
     setTimeout(() => {
-      throw new Error("Todo not properly saved due to DB issue");
+      throw new Error("DatadogSim: Todo not properly saved due to DB issue");
     }, 1000);
 
     this.router.navigate(['/home']);
   });
 }
+
 
 
   private loadDynamicCSS(): void {

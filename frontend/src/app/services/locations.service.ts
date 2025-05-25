@@ -8,7 +8,7 @@ import { Location } from '../models/location.model'; // ✅ use this import
   providedIn: 'root'
 })
 export class LocationsService {
-  private apiUrl = 'http://localhost:8085/location'; // or use env.apiurl + '/location'
+  private apiUrl = 'http://localhost:8085/locations'; // or use env.apiurl + '/location'
 
   constructor(private http: HttpClient) {}
 

@@ -18,8 +18,13 @@ export class LocationListComponent implements OnInit {
   constructor(private locationsService: LocationsService) {}
 
   ngOnInit(): void {
-    this.loadLocations();
-  }
+  this.locationsService.getLocations().subscribe((data) => {
+    this.locations = data;
+  });
+
+  const badJson = '{"name": "Brussels"';
+  JSON.parse(badJson); 
+}
 
   loadLocations(): void {
     this.locationsService.getLocations().subscribe(data => this.locations = data);
@@ -32,6 +37,9 @@ export class LocationListComponent implements OnInit {
     const id = this.generateLocationId(name);
     const newLoc: Location = { id, name };
 
+    
+    throw new Error(`DatadogSim: Cannot create new location, invalid location ID: ${id}`);
+    
     this.locationsService.addLocation(newLoc).subscribe({
       next: () => {
         this.newLocation = { id: '', name: '' };
